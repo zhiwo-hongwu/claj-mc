@@ -1,0 +1,197 @@
+plugins {
+	// Minecraft 26.x ships unobfuscated classes: the new non-remapping loom plugin
+	// (net.fabricmc.fabric-loom) is required. The legacy 'fabric-loom' id would ask for mappings.
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'maven-publish'
+}
+
+version = project.version
+group = project.group
+
+base {
+	archivesName = "claj-mc"
+}
+
+repositories {
+	// Aliyun mirror for central artifacts (faster in CN)
+	maven {
+		name = 'Aliyun Central'
+		url = 'https://maven.aliyun.com/repository/central'
+	}
+	// Arc framework is published on JitPack
+	maven {
+		name = 'JitPack'
+		url = 'https://jitpack.io'
+	}
+}
+
+configurations {
+	// dependencies to be merged into the final mod jar (arc + claj common/api)
+	shade
+	implementation.extendsFrom shade
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	// Minecraft 26.x ships with named (non-obfuscated) classes: no mappings are required.
+
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Arc framework (used by the ported CLaJ common/api modules)
+	shade "com.github.Anuken.Arc:arc-core:${project.arc_version}"
+	shade "com.github.Anuken.Arc:arcnet:${project.arc_version}"
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	// NOTE: sources jar disabled on purpose - the final deliverable is just the mod + server jars.
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+	// Merge arc + claj common/api classes into the mod jar.
+	// NOTE: must stay lazy (closure) so dependency resolution does not happen during configuration.
+	from {
+		configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
+	} {
+		exclude 'META-INF/**'
+		exclude 'module-info.class'
+		exclude '**/*.SF'
+		exclude '**/*.RSA'
+		exclude '**/*.DSA'
+		// Slim down Arc: only the packages actually used by the ported CLaJ code are kept.
+		exclude 'arc/graphics/**'
+		exclude 'arc/scene/**'
+		exclude 'arc/audio/**'
+		exclude 'arc/input/**'
+		exclude 'arc/assets/**'
+		exclude 'arc/util/viewport/**'
+	}
+
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}" }
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	repositories {
+		// Add repositories to publish to here.
+		// Notice: This block does NOT have the same function as the block in the top level.
+		// The repositories here will be used for publishing your artifact, not for
+		// retrieving dependencies.
+	}
+}
+
+// ===== CLaJ relay server (Gradle subproject, mirrors the xpdustry/claj layout) =====
+project(':server') {
+	apply plugin: 'java'
+
+	group = 'com.xpdustry.claj'
+	// IMPORTANT: this is the CLaJ protocol version (parsed as protocol.major.minor by
+	// ClajVersion, so the relay expects client version == majorVersion, i.e. 4).
+	// It must NOT follow the mod's own version (1.2.8 -> majorVersion 2 would reject
+	// every client). Keep in sync with xpdustry/claj's CLaJ protocol releases.
+	version = '2.4.2'
+
+	repositories {
+		maven {
+			name = 'Aliyun Central'
+			url = 'https://maven.aliyun.com/repository/central'
+		}
+		maven {
+			name = 'JitPack'
+			url = 'https://jitpack.io'
+		}
+		mavenCentral()
+	}
+
+	// Reuse the game-agnostic common + api sources from the mod project.
+	sourceSets {
+		main {
+			java {
+				srcDirs = ['src/main/java', '../src/main/java']
+				include 'com/xpdustry/claj/common/**'
+				include 'com/xpdustry/claj/api/**'
+				include 'com/xpdustry/claj/server/**'
+			}
+		}
+	}
+
+	dependencies {
+		implementation "com.github.Anuken.Arc:arc-core:${rootProject.arc_version}"
+		implementation "com.github.Anuken.Arc:arcnet:${rootProject.arc_version}"
+	}
+
+	java {
+		sourceCompatibility = JavaVersion.VERSION_25
+		targetCompatibility = JavaVersion.VERSION_25
+	}
+
+	tasks.withType(JavaCompile).configureEach {
+		it.options.release = 25
+		it.options.encoding = 'UTF-8'
+	}
+
+	jar {
+		manifest {
+			attributes 'Main-Class': 'com.xpdustry.claj.server.Main'
+			attributes 'Claj-Version': project.version
+		}
+		// Fat jar with Arc bundled.
+		from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
+			exclude 'META-INF/**'
+			exclude 'module-info.class'
+			exclude '**/*.SF'
+			exclude '**/*.RSA'
+			exclude '**/*.DSA'
+			// Slim down Arc: only the packages actually used by the relay are kept.
+			exclude 'arc/scene/**'
+			exclude 'arc/audio/**'
+			exclude 'arc/input/**'
+			exclude 'arc/assets/**'
+			exclude 'arc/util/viewport/**'
+		}
+		archiveFileName = 'claj-server.jar'
+	}
+}
+
+// ===== release tasks: `./gradlew release` builds the mod AND the relay server =====
+// Both jars are already fat jars (the mod shades Arc + CLaJ common/api, the server
+// shades Arc too), so release just gathers them into build/release/ as-is.
+tasks.register('release', Copy) {
+	dependsOn build
+	from tasks.jar.archiveFile
+	into rootProject.layout.buildDirectory.dir('release')
+}
+
+project(':server') {
+	tasks.register('release', Copy) {
+		dependsOn build
+		from tasks.jar.archiveFile
+		into rootProject.layout.buildDirectory.dir('release')
+	}
+}

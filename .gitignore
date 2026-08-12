@@ -1,0 +1,35 @@
+# gradle
+.gradle/
+build/
+out/
+classes/
+
+# eclipse
+*.launch
+.classpath
+.project
+.settings/
+
+# idea
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# os / logs
+*.class
+*.log
+*.dll
+*.so
+*.dylib
+plugins/
+
+# fabric
+run/
+
+# claj build output
+release/
+
+# server runtime artifacts
+config.json
+config_backup.json

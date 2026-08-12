@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "zhiwo.claj.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"LoginAuthBypassMixin",
+		"JoinMultiplayerScreenMixin",
+		"PauseScreenMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

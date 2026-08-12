@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "claj",
+	"version": "${version}",
+	"name": "CLaJ（复制链接并加入）",
+	"description": "复制链接并加入（Copy Link and Join）——在 Minecraft 26.2 里像开黑一样轻松联机！\n\n创建房间并分享 claj:// 链接，好友无需端口映射即可如局域网般直接加入你的单人世界。\n\n· 一键建房，自动复制链接\n· 中继服务器列表与延迟显示\n· 公共房间浏览器（按服务器分组）\n· 房间密码保护（4 位 PIN）\n· 在线模式友好，自动开放局域网\n\n基于 Xpdustry 的 CLaJ 协议移植，协议版本 2.4.x（与 Mindustry 版 CLaJ 互通）。",
+	"authors": [
+		"ZetaMap",
+		"xzxADIxzx",
+		"Xpdustry",
+		"zhiwo"
+	],
+	"license": "GPL-3.0",
+	"icon": "assets/claj/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"zhiwo.claj.ClajMod"
+		]
+	},
+	"mixins": [
+		"claj.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,25 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Aliyun Central'
+			url = 'https://maven.aliyun.com/repository/central'
+		}
+		maven {
+			name = 'Aliyun Gradle Plugin'
+			url = 'https://maven.aliyun.com/repository/gradle-plugin'
+		}
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+// Should match your modid
+rootProject.name = 'claj'
+
+// The relay server is a plain (non-Minecraft) Gradle subproject, mirroring
+// the xpdustry/claj multi-module layout. `./gradlew release` builds both.
+include 'server'
