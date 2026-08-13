@@ -2,9 +2,7 @@
 
 <div align="center">
 
-[<kbd>🇨🇳 中文</kbd>](README.md)
-
-<sub>中文版 → README.md</sub>
+[中文](README.md)
 
 </div>
 

@@ -2,9 +2,7 @@
 
 <div align="center">
 
-[<kbd>🇺🇸 English</kbd>](README_EN.md)
-
-<sub>English version → README_EN.md</sub>
+[English](README_EN.md)
 
 </div>
 
