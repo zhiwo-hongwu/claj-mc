@@ -252,7 +252,7 @@ public class ClajRelay extends Server implements ApplicationListener, NetListene
 
   public void onDisconnect(ClajConnection connection, DcReason reason) {
     if (connection == null) return;
-    Events.fire(new ClientDisonnectedEvent(connection, reason));
+    Events.fire(new ClientDisconnectedEvent(connection, reason));
     connections.remove(connection.id);
     connection.clearQueue();
 
@@ -721,7 +721,7 @@ public class ClajRelay extends Server implements ApplicationListener, NetListene
   }
 
   public void setRoomAfk(ClajRoom room, boolean isAfk) {
-    if (isAfk) routines.scheludeRoomAfk(room, () -> {
+    if (isAfk) routines.scheduleRoomAfk(room, () -> {
       closeRoom(room, CloseReason.afk);
       info("Room @ closed due to a long period without anyone joining in.", room.sid);
     });

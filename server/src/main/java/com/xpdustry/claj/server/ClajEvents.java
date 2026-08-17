@@ -43,14 +43,25 @@ public class ClajEvents {
       this.connection = connection;
     }
   }
+
   /** When a connection left the server. Only called if the connection was valid. */
-  public static class ClientDisonnectedEvent {
+  public static class ClientDisconnectedEvent {
     public final ClajConnection connection;
     public final DcReason reason;
 
-    public ClientDisonnectedEvent(ClajConnection connection, DcReason reason) {
+    public ClientDisconnectedEvent(ClajConnection connection, DcReason reason) {
       this.connection = connection;
       this.reason = reason;
+    }
+  }
+
+  /**
+   * @deprecated Typo in original class name. Use {@link ClientDisconnectedEvent} instead.
+   */
+  @Deprecated
+  public static class ClientDisonnectedEvent extends ClientDisconnectedEvent {
+    public ClientDisonnectedEvent(ClajConnection connection, DcReason reason) {
+      super(connection, reason);
     }
   }
 

@@ -108,9 +108,9 @@ public final class ByteBufferPool {
    */
   public boolean release(ByteBuffer buf) {
     if (buf == null) return false;
-    int capaticy = buf.capacity();
-    if (capaticy <= 0 || capaticy % factor != 0) return false;
-    return getBuckets(buf.isDirect()).computeIfAbsent(capaticy / factor, newBucket).offer(buf);
+    int capacity = buf.capacity();
+    if (capacity <= 0 || capacity % factor != 0) return false;
+    return getBuckets(buf.isDirect()).computeIfAbsent(capacity / factor, newBucket).offer(buf);
   }
 
   /** Fill a {@code bucket} completely. */

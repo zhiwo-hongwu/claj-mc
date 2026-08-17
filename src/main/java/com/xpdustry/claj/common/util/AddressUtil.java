@@ -27,13 +27,18 @@ import arc.net.Connection;
 
 public class AddressUtil {
   public static long hash(Connection connection) {
-    return hash(connection.getRemoteAddressTCP().getAddress());
+    if (connection == null) return 0L;
+    InetAddress address = get(connection);
+    return address == null ? 0L : hash(address);
   }
 
   /** Hashes the address using FNV-1a 64-bit. */
   public static long hash(InetAddress address) {
+    if (address == null) return 0L;
+    byte[] raw = address.getAddress();
+    if (raw == null) return 0L;
     long hash = 0xcbf29ce484222325L;
-    for (byte b : address.getAddress()) {
+    for (byte b : raw) {
       hash ^= b & 0xff;
       hash *= 0x100000001b3L;
     }
@@ -61,13 +66,17 @@ public class AddressUtil {
   }
 
   public static InetAddress get(Connection con) {
+    if (con == null) return null;
     InetSocketAddress a = con.getRemoteAddressTCP();
     return a == null ? null : a.getAddress();
   }
 
   public static String getString(Connection con) {
+    if (con == null) return null;
     InetSocketAddress a = con.getRemoteAddressTCP();
-    return a == null ? null : a.getAddress().getHostAddress();
+    if (a == null) return null;
+    InetAddress addr = a.getAddress();
+    return addr == null ? null : addr.getHostAddress();
   }
 
   public static String encodeId(Connection con) {

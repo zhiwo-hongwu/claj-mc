@@ -442,7 +442,8 @@ public class ClajControl extends CommandHandler implements ApplicationListener {
             Log.err("Missing 'text' argument!");
             return;
           }
-          room.message(args[2]);
+          String roomMsg = Strings.join(" ", args, 2, args.length);
+          room.message(roomMsg);
           Log.info("Message sent to room @.", args[1]);
           break;
 
@@ -453,7 +454,8 @@ public class ClajControl extends CommandHandler implements ApplicationListener {
             Log.err("Missing 'text' argument!");
             return;
           }
-          ClajVars.relay.types.get(type).eachValue(r -> r.message(args[2]));
+          String listMsg = Strings.join(" ", args, 2, args.length);
+          ClajVars.relay.types.get(type).eachValue(r -> r.message(listMsg));
           Log.info("Message sent to @ rooms of type @.", ClajVars.relay.types.get(type).size, type);
           break;
 
@@ -478,7 +480,8 @@ public class ClajControl extends CommandHandler implements ApplicationListener {
             Log.err("Missing 'text' argument!");
             return;
           }
-          room.popup(args[2]);
+          String roomPopup = Strings.join(" ", args, 2, args.length);
+          room.popup(roomPopup);
           Log.info("Popup sent to the host of room @.", args[1]);
           break;
 
@@ -489,7 +492,8 @@ public class ClajControl extends CommandHandler implements ApplicationListener {
             Log.err("Missing 'text' argument!");
             return;
           }
-          ClajVars.relay.types.get(type).eachValue(r -> r.popup(args[2]));
+          String listPopup = Strings.join(" ", args, 2, args.length);
+          ClajVars.relay.types.get(type).eachValue(r -> r.popup(listPopup));
           Log.info("Popup sent to @ rooms of type @.", ClajVars.relay.types.get(type).size, type);
           break;
 

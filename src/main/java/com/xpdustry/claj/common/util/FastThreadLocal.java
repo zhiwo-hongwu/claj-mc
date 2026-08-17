@@ -75,9 +75,8 @@ public class FastThreadLocal<T> extends ThreadLocal<T> {
     tryRemove(current);
   }
 
-  @SuppressWarnings("deprecation")
   private long getCurrent() {
-    return Thread.currentThread().getId();
+    return Thread.currentThread().threadId();
   }
 
   private void tryUpdate(long current, T val) {

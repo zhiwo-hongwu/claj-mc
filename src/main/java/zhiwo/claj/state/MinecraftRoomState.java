@@ -25,7 +25,7 @@ public class MinecraftRoomState {
 		map.put("players", Jval.valueOf(players));
 		map.put("max", Jval.valueOf(maxPlayers));
 		map.put("port", Jval.valueOf(port));
-		return map.toString();
+		return value.toString(Jval.Jformat.plain);
 	}
 
 	public static MinecraftRoomState decode(String json) {

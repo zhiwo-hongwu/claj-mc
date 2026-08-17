@@ -115,9 +115,10 @@ public class Main implements ApplicationListener {
 
     // Get the server version from manifest or command line property
     String version = null;
-    try {
-      version = new java.util.jar.Manifest(Main.class.getResourceAsStream("/META-INF/MANIFEST.MF"))
-                                 .getMainAttributes().getValue("Claj-Version");
+    try (java.io.InputStream in = Main.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
+      if (in != null) {
+        version = new java.util.jar.Manifest(in).getMainAttributes().getValue("Claj-Version");
+      }
     } catch (Exception e) {
       // Manifest may be absent when running from an IDE: fall through to -DClaj-Version below.
       Log.warn("Unable to locate manifest properties", e);

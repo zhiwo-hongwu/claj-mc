@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "CLaJ 官方协议仓库"
+    url: "https://github.com/xpdustry/claj"
+    about: "了解底层 CLaJ 协议标准与 Mindustry 原版实现"

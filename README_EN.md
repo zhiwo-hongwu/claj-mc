@@ -2,124 +2,123 @@
 
 <div align="center">
 
-[中文](README.md)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+[![Minecraft 26.2](https://img.shields.io/badge/Minecraft-26.2-brightgreen.svg)](https://fabricmc.net/)
+[![Java 25](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
+
+[English](README_EN.md) · [简体中文](README.md)
 
 </div>
 
 > 🛠 **This mod was created by the `DeepSeek-V4-Flash-0731` model** — ported the CLaJ protocol layer, designed the Minecraft loopback bridge transport, wrote the UI / Mixins / build scripts, and completed multiple rounds of debugging and optimization.
 
-> Play Minecraft 26.2 with friends as easily as a LAN party: create a room, share a `claj://` link, and friends can join your single-player world directly over the internet — no port forwarding needed.
+Play Minecraft 26.2 with friends as easily as a LAN party: create a room, share a `claj://` link, and friends can join your single-player world directly over the internet — no port forwarding or complex tunneling required.
 
-> This project is a Minecraft Java Edition port of [xpdustry/claj](https://github.com/xpdustry/claj), reusing its game-agnostic protocol layer (the `common` + `api` modules). It speaks CLaJ protocol version 2.4.x and is interoperable with the Mindustry version of CLaJ and existing relay servers.
+This project is a Minecraft Java Edition port of [xpdustry/claj](https://github.com/xpdustry/claj), reusing its high-performance, game-agnostic protocol layer (`common` + `api` modules). It speaks CLaJ protocol version 2.4.x and is fully interoperable with the Mindustry version of CLaJ and existing relay servers.
+
+---
 
 ## ✨ Features
 
-- **One-click room creation**: create a room on any public / self-hosted CLaJ relay, link copied to clipboard automatically
-- **Automatic LAN exposure**: opening a room automatically opens the world to LAN (starts a TCP listener); closing the room stops it
-- **Join via link**: Main menu → Multiplayer → "Join via CLaJ", paste the link (no key press needed, no need to open a world first)
-- **Relay server list**: scrollable list (no row limit) showing name, address, **latency (ms)**, online / offline status and version compatibility; custom servers can be removed with a click
-- **Public room browser**: public rooms of your servers grouped by relay (room name, player count, mode, version, encryption flag); click to join
-- **Room password**: optional 4-digit PIN
-- **Pause menu**: "Manage CLaJ Rooms" button plus a default `K` key shortcut
-- **Full Chinese / English localization**: built-in `zh_cn` / `en_us` language files
-- **Online-mode friendly**: loopback CLaJ connections automatically use offline login (configurable, see below)
+- **One-click Room Creation**: Create a room on any public or self-hosted CLaJ relay server; link is automatically copied to clipboard.
+- **Automatic LAN Exposure**: Automatically exposes the single-player world to LAN (starts TCP listener) when a room is created, and closes it when the room shuts down.
+- **Join via Link**: Main menu → Multiplayer → "Join via CLaJ" (bottom left), paste the link to connect instantly.
+- **Relay Server List**: Native scrollable list (no row limit) displaying server name, address, **ping latency (ms)**, online status, and version compatibility; easily add or delete custom servers.
+- **Public Room Browser**: Browse public rooms grouped by relay server (room name, player count, game mode, version, lock badge); click to join directly.
+- **Password Protection**: Optional 4-digit PIN for private rooms.
+- **Quick Access**: "Manage CLaJ Room" button in pause screen and configurable `K` key shortcut.
+- **Full Localization**: English (`en_us`) and Simplified Chinese (`zh_cn`).
+- **Online Mode Friendly**: Loopback bridge connections automatically bypass Mojang session verification to avoid IP mismatch errors (configurable).
 
-## 📦 Installation
+---
 
-1. Install [Fabric Loader](https://fabricmc.net/use/) (≥ 0.19.3) and [Fabric API](https://modrinth.com/mod/fabric-api) (`0.157.0+26.2`)
-2. Put `claj-mc-<version>.jar` into `.minecraft/mods/`
-3. Launch the game and confirm **CLaJ (Copy Link & Join)** is listed in the Mods screen
+## 📦 Installation & Usage
 
-> Both the host and every joiner must install this mod.
+### Prerequisites
+1. Install [Fabric Loader](https://fabricmc.net/use/) (≥ 0.19.3) and [Fabric API](https://modrinth.com/mod/fabric-api) (`0.157.0+26.2`).
+2. Place `claj-mc-<version>.jar` into `.minecraft/mods/`.
+3. Launch Minecraft and verify the mod is loaded.
 
-## 🎮 Usage
+> 💡 **Note**: Both the host and joining players must have this mod installed.
 
-### Host (create a room)
+### Host (Create Room)
+1. Load into any **single-player world**.
+2. Press `Esc` and click "Manage CLaJ Room" in the top-right corner (or press `K`).
+3. Select a relay server and click "Create Room".
+4. The shareable `claj://` link will be copied to your clipboard automatically.
 
-1. Enter a **single-player world**
-2. Pause menu, top right → "Manage CLaJ Rooms"
-3. Pick a relay server → "Create Room" (the world is automatically exposed on LAN)
-4. Copy the link and send it to your friends
+### Joiner (Join Room)
+1. From the main menu, go to **Multiplayer** → click **Join via CLaJ** (bottom left).
+2. Paste the `claj://host:port/roomId` link (and 4-digit PIN if required).
+3. Alternatively, open **Browse All Rooms** to select and join any public room.
 
-### Joiner (join a room)
+---
 
-1. Main menu → Multiplayer → "Join via CLaJ" (bottom left)
-2. Paste a `claj://host:port/roomId` link (enter the 4-digit PIN for protected rooms)
-3. Or pick a public room from "Browse All Rooms"
+## 🏗 Architecture & Design
 
-> ⚠️ Anyone holding the link can join (online-mode verification is bypassed) — do not share links publicly, same as vanilla CLaJ.
+Uses a **Local Loopback Bridge** architecture that keeps Minecraft protocol bytes transparent end-to-end:
 
-## 🔨 Building
+```
+[Joiner MC Client] ──TCP──> [Local Listener] ──Deframing──> [RelayClient (ArcNet)]
+                                                                    │
+                                                              (CLaJ Frames)
+                                                                    ▼
+                                                         [CLaJ Relay Server]
+                                                                    │
+                                                              (CLaJ Frames)
+                                                                    ▼
+[Host Integrated Server] <──TCP── [LoopbackBridge] <──Framing── [MinecraftClajProxy]
+```
 
-Requirements: **JDK 25** and network access (Maven Central via Aliyun mirror, Arc via JitPack).
+- **Host Side** (`MinecraftClajProxy` + `LoopbackBridge`): Creates an actual TCP loopback connection to the host's integrated server for every remote CLaJ player.
+- **Joiner Side** (`MinecraftClajJoiner` + `RelayClient`): Redirects the client to a local listening port and bridges bytes across ArcNet through the relay.
+- **Stream Optimization**: Joiner-to-host transfers are framed and re-framed cleanly; host-to-joiner transfers stream in raw chunks without arbitrary payload size caps.
+- **Frame size limit**: The joiner → host direction caps each frame at 24KB (relay queue cap 8KB). Vanilla client frames are tiny, but **extreme modpacks** (e.g. very large custom payloads) may exceed this limit and drop the connection — heavily modded clients may be incompatible.
 
+---
+
+## 🔨 Building & Testing
+
+### Requirements
+- **JDK 25**
+
+### Commands
 ```bash
-# One-command build of the mod and the relay server (mirrors xpdustry/claj's release task); output goes to build/release/
+# Run unit tests
+./gradlew test
+
+# Build both mod jar and standalone server jar (outputs to build/release/)
 ./gradlew release
 
-# Or build them separately
-./gradlew build                  # mod → build/libs/claj-mc-<version>.jar
-./gradlew :server:build          # relay server → server/build/libs/claj-server.jar
+# Build separately
+./gradlew build             # Mod -> build/libs/claj-mc-<version>.jar
+./gradlew :server:build     # Relay -> server/build/libs/claj-server.jar
 ```
 
-Self-host a relay server:
-
+### Running Standalone Relay Server
 ```bash
-java -jar claj-server.jar <port>   # e.g. java -jar claj-server.jar 50000
+java -jar claj-server.jar <port>   # e.g., java -jar claj-server.jar 50000
 ```
+> ⚠️ **Important**: Relay servers must expose **both TCP and UDP** on the chosen port.
 
-> ⚠️ A relay server must expose **both TCP and UDP** ports (TCP carries data forwarding, UDP carries client heartbeats and server discovery). If UDP is dropped by NAT / firewalls, clients will not be able to connect to / discover the node.
-> CLaJ relays are bandwidth-heavy (about 1 MB/s per node on average); the public node list lives at [public-servers.hjson](https://github.com/xpdustry/claj/blob/main/public-servers.hjson).
-
-## 🏗 How it works
-
-It uses a **local loopback bridge** design: Minecraft protocol bytes stay transparent end to end (CLaJ never parses any protocol content):
-
-```
-Joiner MC client ─TCP→ local listener ─deframing→ ArcNet client ─CLaJ frames→ relay server (pure byte forwarding)
-Host integrated server ←TCP─ loopback bridge ─framing─ ArcNet proxy ←CLaJ frames──┘
-```
-
-- **Host side** (`MinecraftClajProxy` + `LoopbackBridge`): every remote player is a real loopback TCP connection to the local integrated server, which only sees ordinary network clients
-- **Joiner side** (`MinecraftClajJoiner` + `RelayClient`): redirects the Minecraft client to the local listening port, connects to the relay over ArcNet, sends a CLaJ join packet to register into the room, then pumps raw bytes in both directions
-- **Direction semantics**: joiner → host transfers frames (length prefixes stripped / re-added); host → joiner transfers a byte stream in chunks (no size limit, supports big world sync)
-- **Frame size limit**: the joiner → host direction caps each frame at 24KB (relay queue cap 8KB). Vanilla client frames are tiny, but **extreme modpacks** (e.g. very large custom payloads) may exceed this limit and drop the connection — heavily modded clients may be incompatible
-
-### Module layout
-
-```
-src/main/java/
-├── com/xpdustry/claj/   # ported CLaJ protocol layer (common + api, Arc-only)
-└── zhiwo/claj/          # Minecraft implementation
-    ├── join/            # joiner bridge (RelayClient / serializers)
-    ├── proxy/           # host proxy (MinecraftClajProxy / LoopbackBridge)
-    ├── screen/          # UI (join / manage / browser / settings / scrolling server list)
-    ├── mixin/           # online-mode bypass, multiplayer & pause menu buttons
-    ├── state/           # room state codec (browser display)
-    └── transport/       # Minecraft frame utilities
-server/                  # CLaJ relay server (Gradle subproject, built by ./gradlew release)
-```
+---
 
 ## ⚙️ Configuration
 
-The configuration file lives at `config/claj.json` (generated on first run):
+Configuration is located at `.minecraft/config/claj.json`:
 
-| Field | Description |
-|---|---|
-| `customServers` | custom relay servers (name → `host:port`) |
-| `roomPublic` | whether the room is public (shown in the room browser) |
-| `roomProtected` | whether the room requires a password |
-| `roomPassword` | 4-digit PIN |
-| `lanPort` | port used for automatic LAN exposure (`0` = default 25565) |
-| `onlineModeBypass` | whether to bypass online-mode verification (loopback connections use offline login, default `true`) |
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `customServers` | Map | `{}` | Custom relay server mappings (`Name: host:port`) |
+| `roomPublic` | boolean | `true` | Whether the room is visible in the public room browser |
+| `roomProtected` | boolean | `false` | Whether password protection is enabled |
+| `roomPassword` | int | `0` | Room password PIN (0000 - 9999) |
+| `lanPort` | int | `0` | TCP port for LAN exposure (`0` = 25565 default) |
+| `onlineModeBypass` | boolean | `true` | Whether to bypass Mojang session check for loopback connections |
 
-## 🧩 Protocol compatibility
+---
 
-- CLaJ protocol version `2.4.2` (major `4`, matching 2.4.x relays)
-- Implementation type `"Minecraft"` (rooms are isolated by type and never interfere with Mindustry rooms)
-- Not compatible with the old scheme-size CLaJ
-
-## ⚠️ Security & trust notes
+## ⚠️ Security & Trust Notes
 
 Please understand the following design assumptions before use (identical to vanilla CLaJ — a trust model, not a flaw):
 
@@ -128,25 +127,11 @@ Please understand the following design assumptions before use (identical to vani
 - **Room passwords are not encryption**: the 4-digit PIN only keeps strangers / abusers out; it is transmitted in plaintext and has only 10000 combinations — treat it as a deterrent, not a security mechanism.
 - **The link is the credential**: anyone holding the link can join; do not share it publicly.
 
-## 🤝 Contributing
-
-Issues and pull requests are welcome. Development workflow:
-
-```bash
-# edit code → build → regression tests
-./gradlew release
-# clean build caches, keep the repo tidy
-rm -rf .gradle build server/build plugins
-```
+---
 
 ## 📄 License
 
-[GPL-3.0](./LICENSE)
+This project is licensed under the [GNU General Public License v3.0](./LICENSE).
 
-Ported protocol and server code © [Xpdustry](https://github.com/xpdustry).
-
-## 🙏 Acknowledgements
-
-- [xpdustry/claj](https://github.com/xpdustry/claj) — the original CLaJ project (protocol / server / API)
-- [Anuken/Arc](https://github.com/Anuken/Arc) — the underlying networking framework
-- [FabricMC](https://fabricmc.net/) — the mod loader & toolchain
+- Ported protocol and server core © [Xpdustry](https://github.com/xpdustry)
+- Underlying networking library © [Anuken/Arc](https://github.com/Anuken/Arc)

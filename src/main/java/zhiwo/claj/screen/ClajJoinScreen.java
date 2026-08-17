@@ -85,6 +85,12 @@ public class ClajJoinScreen extends Screen {
 		passwordBox = new EditBox(font, x, y, pwW, 20, Component.translatable("claj.join.password"));
 		passwordBox.setMaxLength(4);
 		passwordBox.setHint(Component.translatable("claj.join.password.hint"));
+		passwordBox.setResponder(s -> {
+			String filtered = s.replaceAll("[^0-9]", "");
+			if (!filtered.equals(s)) {
+				passwordBox.setValue(filtered);
+			}
+		});
 		if (!savedPin.isEmpty()) passwordBox.setValue(savedPin);
 		addRenderableWidget(passwordBox);
 

@@ -50,7 +50,7 @@ public class ClajSettingsScreen extends Screen {
 
 		int w = Math.min(340, width - 60);
 		int x = (width - w) / 2;
-		int y = Math.max(24, (height - 210) / 2);
+		int y = Math.max(38, (height - 180) / 2);
 
 		publicBox = Checkbox.builder(Component.translatable("claj.settings.public"), font)
 				.pos(x, y).selected(savedPublic).build();
@@ -65,6 +65,12 @@ public class ClajSettingsScreen extends Screen {
 		passwordBox = new EditBox(font, x, y, w, 20, Component.translatable("claj.settings.password"));
 		passwordBox.setMaxLength(4);
 		passwordBox.setHint(Component.translatable("claj.settings.password.hint"));
+		passwordBox.setResponder(s -> {
+			String filtered = s.replaceAll("[^0-9]", "");
+			if (!filtered.equals(s)) {
+				passwordBox.setValue(filtered);
+			}
+		});
 		passwordBox.setValue(savedPin);
 		addRenderableWidget(passwordBox);
 		y += 32;
@@ -79,7 +85,8 @@ public class ClajSettingsScreen extends Screen {
 		data.roomPublic = publicBox.selected();
 		data.roomProtected = protectedBox.selected();
 		try {
-			int password = Integer.parseInt(passwordBox.getValue().trim());
+			String pinStr = passwordBox.getValue().trim();
+			int password = pinStr.isEmpty() ? 0 : Integer.parseInt(pinStr);
 			if (password < 0 || password > 9999) password = 0;
 			data.roomPassword = password;
 		} catch (NumberFormatException e) {
@@ -106,10 +113,11 @@ public class ClajSettingsScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
 		extractor.fill(0, 0, width, height, 0xAA000000);
-		extractor.text(font, getTitle(), (width - font.width(getTitle())) / 2, 40, 0xFFFFFF);
+		extractor.text(font, getTitle(), (width - font.width(getTitle())) / 2, 12, 0xFFFFFF);
 		if (!status.getString().isEmpty()) {
-			extractor.text(font, status, (width - font.width(status)) / 2, height - 40, 0xFF55FF55);
+			extractor.text(font, status, (width - font.width(status)) / 2, height - 20, 0xFF55FF55);
 		}
 		super.extractRenderState(extractor, mouseX, mouseY, partialTick);
 	}
 }
+

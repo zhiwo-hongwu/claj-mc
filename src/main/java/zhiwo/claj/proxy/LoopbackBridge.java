@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import arc.net.DcReason;
 
@@ -39,6 +40,7 @@ public class LoopbackBridge implements Runnable {
 
 	private final Object lock = new Object();
 	private final ArrayDeque<byte[]> outbound = new ArrayDeque<>();
+	private final AtomicBoolean closedReported = new AtomicBoolean(false);
 	private volatile boolean running = true;
 	private volatile Socket socket;
 
@@ -67,7 +69,7 @@ public class LoopbackBridge implements Runnable {
 		// the bridges lock, while the proxy may hold bridges and call bridge.close() (AB-BA).
 		if (overflow) {
 			close();
-			proxy.bridgeClosed(con.getID(), DcReason.error);
+			notifyClosed(DcReason.error);
 		}
 	}
 
@@ -79,6 +81,12 @@ public class LoopbackBridge implements Runnable {
 		try {
 			if (socket != null) socket.close();
 		} catch (IOException ignored) {}
+	}
+
+	private void notifyClosed(DcReason reason) {
+		if (closedReported.compareAndSet(false, true)) {
+			proxy.bridgeClosed(con.getID(), reason);
+		}
 	}
 
 	@Override
@@ -106,11 +114,11 @@ public class LoopbackBridge implements Runnable {
 				}
 			}
 			// The local server closed the fake client: notify the relay.
-			proxy.bridgeClosed(con.getID(), DcReason.closed);
+			notifyClosed(DcReason.closed);
 		} catch (IOException e) {
 			if (running) {
 				ClajMod.LOGGER.warn("CLaJ bridge {}: local connection failed: {}", con.getID(), e.toString());
-				proxy.bridgeClosed(con.getID(), DcReason.error);
+				notifyClosed(DcReason.error);
 			}
 		} finally {
 			running = false;
@@ -146,6 +154,8 @@ public class LoopbackBridge implements Runnable {
 		} catch (IOException ignored) {
 		} finally {
 			close();
+			notifyClosed(DcReason.closed);
 		}
 	}
 }
+

@@ -315,8 +315,16 @@ public class ClajRoom implements NetListener {
   }
 
   /** @return whether the room is created or not. */
-  public boolean isCreataed() {
+  public boolean isCreated() {
     return created;
+  }
+
+  /**
+   * @deprecated Typo in original API. Use {@link #isCreated()} instead.
+   */
+  @Deprecated
+  public boolean isCreataed() {
+    return isCreated();
   }
 
   /** @return whether the room is closed or not. */

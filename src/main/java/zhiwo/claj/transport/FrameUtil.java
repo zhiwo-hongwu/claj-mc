@@ -23,14 +23,25 @@ public final class FrameUtil {
 
 	private FrameUtil() {}
 
-	/** Reads a {@code VarInt} from the stream. */
+	/**
+	 * Reads a {@code VarInt} from the stream.
+	 *
+	 * @return the parsed VarInt value, or {@code -1} on clean EOF at the first byte.
+	 * @throws EOFException if EOF occurs unexpectedly after reading at least one byte.
+	 * @throws IOException if the VarInt is larger than 5 bytes.
+	 */
 	public static int readVarInt(InputStream in) throws IOException {
 		int value = 0;
 		int position = 0;
 		int current;
+		boolean first = true;
 		while (true) {
 			current = in.read();
-			if (current == -1) throw new EOFException("Unexpected end of stream while reading VarInt");
+			if (current == -1) {
+				if (first) return -1;
+				throw new EOFException("Unexpected end of stream while reading VarInt");
+			}
+			first = false;
 			value |= (current & 0x7F) << position;
 			if ((current & 0x80) == 0) break;
 			position += 7;
@@ -51,10 +62,11 @@ public final class FrameUtil {
 	/**
 	 * Reads one Minecraft frame from the stream and returns its payload (length prefix stripped).
 	 *
-	 * @return the frame payload, or {@code null} on EOF at a frame boundary
+	 * @return the frame payload, or {@code null} on clean EOF at a frame boundary
 	 */
 	public static byte[] readFrame(InputStream in) throws IOException {
 		int length = readVarInt(in);
+		if (length == -1) return null;
 		if (length < 0 || length > MAX_FRAME) throw new IOException("Invalid Minecraft frame length: " + length);
 		byte[] payload = new byte[length];
 		readFully(in, payload);

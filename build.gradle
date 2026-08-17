@@ -1,6 +1,6 @@
 plugins {
 	// Minecraft 26.x ships unobfuscated classes: the new non-remapping loom plugin
-	// (net.fabricmc.fabric-loom) is required. The legacy 'fabric-loom' id would ask for mappings.
+	// (net.fabricmc.fabric-loom) is required.
 	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
@@ -18,6 +18,7 @@ repositories {
 		name = 'Aliyun Central'
 		url = 'https://maven.aliyun.com/repository/central'
 	}
+	mavenCentral()
 	// Arc framework is published on JitPack
 	maven {
 		name = 'JitPack'
@@ -34,16 +35,17 @@ configurations {
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	// Minecraft 26.x ships with named (non-obfuscated) classes: no mappings are required.
 
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	// Arc framework (used by the ported CLaJ common/api modules)
 	shade "com.github.Anuken.Arc:arc-core:${project.arc_version}"
 	shade "com.github.Anuken.Arc:arcnet:${project.arc_version}"
+
+	// Testing framework
+	testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 processResources {
@@ -56,12 +58,16 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 25
+	it.options.encoding = 'UTF-8'
 }
 
 java {
-	// NOTE: sources jar disabled on purpose - the final deliverable is just the mod + server jars.
 	sourceCompatibility = JavaVersion.VERSION_25
 	targetCompatibility = JavaVersion.VERSION_25
+}
+
+tasks.withType(Test).configureEach {
+	useJUnitPlatform()
 }
 
 jar {
@@ -96,14 +102,6 @@ publishing {
 			from components.java
 		}
 	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
 }
 
 // ===== CLaJ relay server (Gradle subproject, mirrors the xpdustry/claj layout) =====
@@ -113,7 +111,7 @@ project(':server') {
 	group = 'com.xpdustry.claj'
 	// IMPORTANT: this is the CLaJ protocol version (parsed as protocol.major.minor by
 	// ClajVersion, so the relay expects client version == majorVersion, i.e. 4).
-	// It must NOT follow the mod's own version (1.2.8 -> majorVersion 2 would reject
+	// It must NOT follow the mod's own version (1.3.0 -> majorVersion 3 would reject
 	// every client). Keep in sync with xpdustry/claj's CLaJ protocol releases.
 	version = '2.4.2'
 
@@ -122,11 +120,11 @@ project(':server') {
 			name = 'Aliyun Central'
 			url = 'https://maven.aliyun.com/repository/central'
 		}
+		mavenCentral()
 		maven {
 			name = 'JitPack'
 			url = 'https://jitpack.io'
 		}
-		mavenCentral()
 	}
 
 	// Reuse the game-agnostic common + api sources from the mod project.
@@ -139,11 +137,20 @@ project(':server') {
 				include 'com/xpdustry/claj/server/**'
 			}
 		}
+		test {
+			java {
+				srcDirs = ['src/test/java', '../src/test/java']
+				include 'com/xpdustry/claj/**'
+			}
+		}
 	}
 
 	dependencies {
 		implementation "com.github.Anuken.Arc:arc-core:${rootProject.arc_version}"
 		implementation "com.github.Anuken.Arc:arcnet:${rootProject.arc_version}"
+
+		testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
+		testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 	}
 
 	java {
@@ -154,6 +161,10 @@ project(':server') {
 	tasks.withType(JavaCompile).configureEach {
 		it.options.release = 25
 		it.options.encoding = 'UTF-8'
+	}
+
+	tasks.withType(Test).configureEach {
+		useJUnitPlatform()
 	}
 
 	jar {

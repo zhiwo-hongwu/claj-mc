@@ -46,7 +46,7 @@ public class AddServerScreen extends Screen {
 
 		int w = Math.min(340, width - 60);
 		int x = (width - w) / 2;
-		int y = Math.max(24, (height - 170) / 2);
+		int y = Math.max(38, (height - 120) / 2);
 
 		nameBox = new EditBox(font, x, y, w, 20, Component.translatable("claj.add-server.name"));
 		nameBox.setMaxLength(64);
@@ -97,7 +97,8 @@ public class AddServerScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
 		extractor.fill(0, 0, width, height, 0xAA000000);
-		extractor.text(font, getTitle(), (width - font.width(getTitle())) / 2, 40, 0xFFFFFF);
+		extractor.text(font, getTitle(), (width - font.width(getTitle())) / 2, 12, 0xFFFFFF);
 		super.extractRenderState(extractor, mouseX, mouseY, partialTick);
 	}
 }
+

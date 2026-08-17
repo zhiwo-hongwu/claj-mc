@@ -2,122 +2,122 @@
 
 <div align="center">
 
-[English](README_EN.md)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+[![Minecraft 26.2](https://img.shields.io/badge/Minecraft-26.2-brightgreen.svg)](https://fabricmc.net/)
+[![Java 25](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
+
+[English](README_EN.md) · [简体中文](README.md)
 
 </div>
 
 > 🛠 **本模组由 `DeepSeek-V4-Flash-0731` 模型制作** —— 移植 CLaJ 协议层、设计 Minecraft 回环桥接传输、编写 UI / Mixin / 构建脚本，并完成多轮调试与优化。
 
-> 在 Minecraft 26.2 里像开黑一样轻松联机：创建房间、分享 `claj://` 链接，好友无需端口映射即可如局域网般直接加入你的单人世界。
+在 Minecraft 26.2 里像开黑一样轻松联机：创建房间、分享 `claj://` 链接，好友无需内网穿透与端口映射即可如局域网般直接加入你的单人世界。
 
-> 本项目是 [xpdustry/claj](https://github.com/xpdustry/claj) 的 Minecraft Java Edition 移植版，复用其游戏无关的协议层（`common` + `api` 模块），协议版本 2.4.x，与 Mindustry 版 CLaJ 及现有中继服务器互通。
+本项目是 [xpdustry/claj](https://github.com/xpdustry/claj) 的 Minecraft Java Edition 适配版，复用其游戏无关的高效协议层（`common` + `api` 模块），协议版本 2.4.x，与 Mindustry 版 CLaJ 及现有中继服务器完全互通。
+
+---
 
 ## ✨ 功能特性
 
-- **一键建房**：在任意公共 / 自建 CLaJ 中继上创建房间，自动复制链接
-- **自动局域网**：建房时自动对局域网开放（启动 TCP 监听），关房自动关闭
-- **通过链接加入**：主界面 → 多人游戏 → 「通过 CLaJ 加入」，粘贴链接即可（无需按键、无需先开世界）
-- **中继服务器列表**：滚动列表（无行数上限），显示名称、地址、**延迟(ms)**、在线 / 离线、版本兼容，自定义服务器可点击删除
-- **公共房间浏览器**：按服务器分组显示自己服务器的公共房间（房间名、人数、模式、版本、加密标记），点击即加入
-- **房间密码**：4 位数字 PIN（可选）
-- **暂停菜单**：「管理 CLaJ 房间」按钮 + 默认 `K` 键快捷入口
-- **完整中文 / 英文**：内置 `zh_cn` / `en_us` 语言文件
-- **在线模式友好**：回环 CLaJ 连接自动走离线登录（可配置，见下文）
+- **一键建房**：在任意公共 / 自建 CLaJ 中继上创建房间，自动复制链接到剪贴板。
+- **自动局域网**：建房时自动对局域网开放（启动 TCP 监听），房间关闭时自动关闭。
+- **通过链接加入**：主界面 → 多人游戏 → 左下角「通过 CLaJ 加入」，粘贴链接即可直接进入。
+- **中继服务器列表**：原生滚动列表（无行数限制），实时显示名称、地址、**延迟 (ms)**、在线 / 离线状态与版本兼容性；支持一键添加与删除自定义服务器。
+- **公共房间浏览器**：按服务器分组展示公共房间（房间名、在线/最大人数、游戏模式、版本号、加密锁标记），点击即刻加入。
+- **房间密码保护**：可选 4 位数字 PIN 码。
+- **快捷入口**：游戏内暂停菜单右上角「管理 CLaJ 房间」按钮，并支持默认 `K` 键快捷键。
+- **双语本地化**：完整支持简体中文 (`zh_cn`) 与英文 (`en_us`)。
+- **在线模式友好**：回环 CLaJ 连接自动走离线登录路径，解决联机认证 IP 不匹配问题（可配置）。
 
-## 📦 安装
+---
 
-1. 安装 [Fabric Loader](https://fabricmc.net/use/)（版本 ≥ 0.19.3）与 [Fabric API](https://modrinth.com/mod/fabric-api)（`0.157.0+26.2`）
-2. 将 `claj-mc-<version>.jar` 放入 `.minecraft/mods/`
-3. 启动游戏，进入 Mods 列表确认 **CLaJ（复制链接并加入）** 已加载
+## 📦 安装与使用
 
-> 房主与所有加入者都需安装本模组。
+### 客户端依赖
+1. 安装 [Fabric Loader](https://fabricmc.net/use/)（版本 ≥ 0.19.3）与 [Fabric API](https://modrinth.com/mod/fabric-api)（`0.157.0+26.2`）。
+2. 将 `claj-mc-<version>.jar` 放入 `.minecraft/mods/` 文件夹。
+3. 启动游戏确认模组已成功加载。
 
-## 🎮 使用说明
+> 💡 **提示**：房主与所有加入者均需安装本模组。
 
-### 房主（创建房间）
+### 房主操作（创建房间）
+1. 进入任意**单人世界**。
+2. 按 `Esc` 打开暂停菜单，点击右上角「管理 CLaJ 房间」（或按快捷键 `K`）。
+3. 选择一个中继服务器，点击「创建房间」。
+4. 房间链接将自动复制到剪贴板，发送给好友即可。
 
-1. 进入一个**单人世界**
-2. 暂停菜单右上角 → 「管理 CLaJ 房间」
-3. 选择中继服务器 → 「创建房间」（世界会自动对局域网开放）
-4. 复制链接发给朋友
+### 加入者操作（加入房间）
+1. 打开游戏主界面 → 「多人游戏」 → 点击左下角「通过 CLaJ 加入」。
+2. 粘贴好友发给你的 `claj://主机:端口/房间ID` 链接（如设有密码则输入 4 位 PIN）。
+3. 或点击「浏览全部房间」选择公开房间直接加入。
 
-### 加入者（加入房间）
+---
 
-1. 主界面 → 多人游戏 → 左下角「通过 CLaJ 加入」
-2. 粘贴 `claj://主机:端口/房间ID` 链接（加密房间输入 4 位 PIN）
-3. 或从「浏览全部房间」中选择一个公共房间
+## 🏗 技术架构与工作原理
 
-> ⚠️ 持有链接即可加入（在线模式校验已旁路）——请勿公开分享链接，与原版 CLaJ 一致。
+采用**本地回环桥接（Local Loopback Bridge）**设计，Minecraft 协议字节全程透明透传（CLaJ 不侵入解析 Minecraft 内部数据包）：
 
-## 🔨 构建
-
-环境要求：**JDK 25**、可访问网络（Maven Central 走阿里云镜像，Arc 走 JitPack）。
-
-```bash
-# 一键构建模组 + 中继服务器（仿 xpdustry/claj 的 release 任务），产物输出到 build/release/
-./gradlew release
-
-# 或分别构建
-./gradlew build                  # 模组 → build/libs/claj-mc-<version>.jar
-./gradlew :server:build          # 中继服务器 → server/build/libs/claj-server.jar
+```
+[加入者 MC 客户端] ──TCP──> [本机监听器] ──拆帧──> [RelayClient (ArcNet)]
+                                                     │
+                                               (CLaJ 协议帧)
+                                                     ▼
+                                          [CLaJ 中继服务器 (Relay)]
+                                                     │
+                                               (CLaJ 协议帧)
+                                                     ▼
+[房主集成服务端]  <──TCP──  [LoopbackBridge] <──组帧── [MinecraftClajProxy]
 ```
 
-自建中继服务器：
+- **房主端**（`MinecraftClajProxy` + `LoopbackBridge`）：为每个远程 CLaJ 客户端在本机建立真实的 TCP 回环连接，集成服务端将其视作标准的局域网连接。
+- **加入端**（`MinecraftClajJoiner` + `RelayClient`）：在本地开启临时 TCP 监听，并将客户端流量通过 ArcNet 经中继转发至房主端。
+- **传输优化**：加入端至房主端按帧透明解包与重新组帧；房主端至加入端按流分块（无大小限制，保障世界数据同步无阻）。
+- **帧大小限制**：加入者 → 房主方向的单帧上限为 24KB（中继排队上限 8KB）。原版客户端帧都很小，但**极端大型模组包**（如超大自定义负载）可能超过该限制导致断连——大型模组整合包客户端可能不兼容。
 
+---
+
+## 🔨 构建与测试
+
+### 环境要求
+- **JDK 25**
+- 支持网络访问（依赖通过阿里云镜像与 JitPack 解析）
+
+### 构建命令
+```bash
+# 运行单元测试
+./gradlew test
+
+# 一键构建 Fabric 模组与独立中继服务端 (产物输出至 build/release/)
+./gradlew release
+
+# 单独构建
+./gradlew build             # 模组 -> build/libs/claj-mc-<version>.jar
+./gradlew :server:build     # 中继服务端 -> server/build/libs/claj-server.jar
+```
+
+### 自建中继服务器
 ```bash
 java -jar claj-server.jar <端口>   # 例：java -jar claj-server.jar 50000
 ```
+> ⚠️ **注意**：中继服务器需**同时开放 TCP 和 UDP 端口**（TCP 用于数据中继，UDP 用于心跳探测与节点发现）。
 
-> ⚠️ 中继服务器需要**同时开放 TCP 与 UDP** 端口（TCP 用于数据转发，UDP 用于客户端心跳与服务器发现）。若 UDP 被 NAT/防火墙丢弃，客户端将无法连接/探测到该节点。
-> CLaJ 中继是带宽大户（平均约 1MB/s / 节点），公共节点列表见 [public-servers.hjson](https://github.com/xpdustry/claj/blob/main/public-servers.hjson)。
+---
 
-## 🏗 工作原理
+## ⚙️ 配置文件
 
-采用**本地回环桥接**设计，Minecraft 协议字节全程透明（CLaJ 不解析任何协议内容）：
+模组配置文件位于 `.minecraft/config/claj.json`：
 
-```
-加入者MC客户端 ─TCP→ 本机监听 ─拆帧→ ArcNet客户端 ─CLaJ帧→ 中继服务器(纯字节搬运)
-房主集成服务器 ←TCP─ 回环桥接 ─组帧─ ArcNet代理 ←CLaJ帧──┘
-```
+| 配置项 | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `customServers` | Map | `{}` | 自定义中继服务器列表 (`名称: 主机:端口`) |
+| `roomPublic` | boolean | `true` | 是否将房间公开发布到房间浏览器 |
+| `roomProtected` | boolean | `false` | 是否开启 4 位 PIN 码房间密码保护 |
+| `roomPassword` | int | `0` | 房间密码 (0000 - 9999) |
+| `lanPort` | int | `0` | 自动开启局域网时使用的端口 (`0` 为默认 25565) |
+| `onlineModeBypass` | boolean | `true` | 是否对本地回环连接旁路在线模式验证 |
 
-- **房主端**（`MinecraftClajProxy` + `LoopbackBridge`）：每个远程玩家对应一条连向本机集成服务器的真实回环 TCP，服务器只看到普通网络客户端
-- **加入端**（`MinecraftClajJoiner` + `RelayClient`）：将 Minecraft 客户端重定向到本机监听端口，经 ArcNet 连接中继并发送 CLaJ 加入包登记入房，随后纯字节双向泵
-- **方向语义**：加入者 → 房主按帧传输（剥 / 补长度前缀）；房主 → 加入者按字节流分块（无大小限制，支持大世界同步）
-- **帧大小限制**：加入者 → 房主方向的单帧上限为 24KB（中继排队上限 8KB）。原版客户端帧都很小，但**极端大型模组包**（如超大自定义负载）可能超过该限制导致断连——大型模组整合包客户端可能不兼容
-
-### 模块结构
-
-```
-src/main/java/
-├── com/xpdustry/claj/   # 移植的 CLaJ 协议层（common + api，仅依赖 Arc）
-└── zhiwo/claj/          # Minecraft 实现
-    ├── join/            # 加入者桥接（RelayClient / 序列化器）
-    ├── proxy/           # 房主代理（MinecraftClajProxy / LoopbackBridge）
-    ├── screen/          # UI（加入 / 管理 / 浏览器 / 设置 / 滚动服务器列表）
-    ├── mixin/           # 在线模式旁路、多人游戏与暂停菜单按钮
-    ├── state/           # 房间状态编解码（浏览器展示）
-    └── transport/       # Minecraft 帧工具
-server/                  # CLaJ 中继服务器（Gradle 子项目，./gradlew release 一并构建）
-```
-
-## ⚙️ 配置
-
-配置文件位于 `config/claj.json`（首次运行时生成）：
-
-| 字段 | 说明 |
-|---|---|
-| `customServers` | 自定义中继服务器（名称 → `主机:端口`） |
-| `roomPublic` | 房间是否公开（显示在房间浏览器） |
-| `roomProtected` | 房间是否需要密码 |
-| `roomPassword` | 4 位数字 PIN |
-| `lanPort` | 自动开局域网使用的端口（`0` = 默认 25565） |
-| `onlineModeBypass` | 是否旁路在线模式校验（回环连接走离线登录，默认 `true`） |
-
-## 🧩 协议兼容
-
-- CLaJ 协议版本 `2.4.2`（major `4`，与 2.4.x 中继一致）
-- 实现类型 `"Minecraft"`（房间按类型隔离，与 Mindustry 房间互不干扰）
-- 与旧版 scheme-size CLaJ 不兼容
+---
 
 ## ⚠️ 安全与信任说明
 
@@ -128,25 +128,11 @@ server/                  # CLaJ 中继服务器（Gradle 子项目，./gradlew r
 - **房间密码不是加密**：4 位 PIN 仅用于防误入/反滥用，明文传输且空间仅 10000，不可作为安全机制。
 - **链接即凭证**：持有链接即可加入，请勿公开分享。
 
-## 🤝 贡献
+---
 
-欢迎提交 Issue 与 Pull Request。开发工作流：
+## 📄 开源许可
 
-```bash
-# 修改代码 → 构建 → 回归测试
-./gradlew release
-# 清理构建缓存，保持仓库干净
-rm -rf .gradle build server/build plugins
-```
+本项目采用 [GNU General Public License v3.0](./LICENSE) 协议开源。
 
-## 📄 许可
-
-[GPL-3.0](./LICENSE)
-
-移植的协议与服务器代码 © [Xpdustry](https://github.com/xpdustry)。
-
-## 🙏 致谢
-
-- [xpdustry/claj](https://github.com/xpdustry/claj) — 原始 CLaJ 项目（协议 / 服务器 / API）
-- [Anuken/Arc](https://github.com/Anuken/Arc) — 底层网络框架
-- [FabricMC](https://fabricmc.net/) — 模组加载器与工具链
+- 移植的底层协议与服务端代码 © [Xpdustry](https://github.com/xpdustry)
+- 底层网络驱动 © [Anuken/Arc](https://github.com/Anuken/Arc)

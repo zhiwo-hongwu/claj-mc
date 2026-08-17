@@ -75,7 +75,12 @@ public class ServerListWidget extends ObjectSelectionList<ServerListWidget.Serve
 			int y = getContentY();
 			int color = isSelected() ? 0x8033AAFF : isMouseOver ? 0x40FFFFFF : 0x25000000;
 			extractor.fill(x, y, getContentRight(), getContentBottom(), color);
-			extractor.text(minecraft.font, label(), x + 6, y + 6, isSelected() ? 0xFFFFAA00 : 0xFFFFFFFF);
+			String text = label();
+			int maxWidth = getContentRight() - x - 12;
+			if (minecraft.font.width(text) > maxWidth && maxWidth > 20) {
+				text = minecraft.font.plainSubstrByWidth(text, maxWidth - 8) + "…";
+			}
+			extractor.text(minecraft.font, text, x + 6, y + 6, isSelected() ? 0xFFFFAA00 : 0xFFFFFFFF);
 		}
 
 		private boolean isSelected() {

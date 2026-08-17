@@ -144,6 +144,9 @@ public class ClajType {
 
   /** @return the parsed {@link ClajType}, or {@code null} if it's invalid. */
   public static ClajType of(String str) {
+    if (str == null) return null;
+    str = str.trim();
+    if (str.isEmpty()) return null;
     byte[] t = str.replace(' ', '_').getBytes(ASCII);
     return t.length < 1 || t.length > SIZE ? null : new ClajType(t);
   }

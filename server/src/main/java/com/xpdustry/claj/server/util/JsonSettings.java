@@ -488,7 +488,7 @@ public class JsonSettings implements Autosaver.Saveable {
   }
 
   public long getLong(String name) {
-    return has(name) ? get(name, Long.class) : (long)defaults.get(name, 0f);
+    return has(name) ? get(name, Long.class) : (long)defaults.get(name, 0L);
   }
 
   public boolean getBool(String name) {

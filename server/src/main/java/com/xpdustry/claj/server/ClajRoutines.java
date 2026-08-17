@@ -86,7 +86,7 @@ public class ClajRoutines {
   // end region
   // region room afk
 
-  public void scheludeRoomAfk(ClajRoom room, Runnable afkClose) {
+  public void scheduleRoomAfk(ClajRoom room, Runnable afkClose) {
     if (!room.isEmpty()) return;
     int life = ClajConfig.afkTime.get();
     if (life <= 0) return;
@@ -95,6 +95,14 @@ public class ClajRoutines {
       afkClose.run();
     }, life * 60));
     if (old != null) old.cancel(); // should not happen, but in case of
+  }
+
+  /**
+   * @deprecated Typo in original API. Use {@link #scheduleRoomAfk(ClajRoom, Runnable)} instead.
+   */
+  @Deprecated
+  public void scheludeRoomAfk(ClajRoom room, Runnable afkClose) {
+    scheduleRoomAfk(room, afkClose);
   }
 
   public void cancelRoomAfk(ClajRoom room) {

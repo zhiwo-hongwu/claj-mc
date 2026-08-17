@@ -1,35 +1,38 @@
-# gradle
+# Gradle build & cache
 .gradle/
 build/
+server/build/
 out/
 classes/
+.loom/
 
-# eclipse
-*.launch
-.classpath
-.project
-.settings/
-
-# idea
+# IDE files
 *.iml
 *.ipr
 *.iws
 .idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.launch
 
-# os / logs
+# OS & temp files
+.DS_Store
+Thumbs.db
 *.class
 *.log
+*.tmp
 *.dll
 *.so
 *.dylib
-plugins/
 
-# fabric
+# Fabric runtime
 run/
+server/run/
 
-# claj build output
+# CLaJ release and runtime artifacts
 release/
-
-# server runtime artifacts
+plugins/
 config.json
 config_backup.json

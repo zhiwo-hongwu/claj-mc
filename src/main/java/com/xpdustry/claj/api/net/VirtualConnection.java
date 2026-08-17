@@ -71,8 +71,11 @@ public class VirtualConnection extends Connection {
   public int sendTCP(Object object) { return proxy.send(this, object, true); }
   @Override
   public int sendTCPBuffer(ByteBuffer buffer) {
+    if (buffer == null) return 0;
+    int prefix = serialization.getLengthLength();
+    if (buffer.remaining() < prefix) return 0;
     int pos = buffer.position();
-    buffer.position(pos + serialization.getLengthLength()); // Skip length prefix to avoid a duplicate
+    buffer.position(pos + prefix); // Skip length prefix to avoid a duplicate
     try { return proxy.send(this, buffer, true); }
     finally { buffer.position(pos); }
   }

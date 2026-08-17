@@ -199,27 +199,36 @@ public abstract class ProxyClient extends Client {
   }
 
   public void closeAllConnections(DcReason reason) {
-    for (VirtualConnection c : getConnections()) {
+    Seq<VirtualConnection> snapshot;
+    synchronized (connectionsMap) {
+      snapshot = new Seq<>(connections);
+      clearConnections();
+      stales = null;
+    }
+    for (VirtualConnection c : snapshot) {
       boolean wasConnected = c.isConnected();
       c.setConnected0(false);
-      if(wasConnected) c.notifyDisconnected0(reason);
+      if (wasConnected) c.notifyDisconnected0(reason);
       c.resetIdle();
       if (!broadcastSupported) close(c.getID(), reason);
     }
-    if (connections.any() && broadcastSupported) send(makeBroadcastClosePacket(reason));
-    clearConnections();
-    stales = null;
+    if (snapshot.any() && broadcastSupported) send(makeBroadcastClosePacket(reason));
   }
 
   private void addStale(VirtualConnection con) {
     if (con == null) return;
-    VirtualConnection[] stales = this.stales;
-    this.stales = stales == null ? new VirtualConnection[] {con} : Structs.add(stales, con);
+    synchronized (connectionsMap) {
+      VirtualConnection[] stales = this.stales;
+      this.stales = stales == null ? new VirtualConnection[] {con} : Structs.add(stales, con);
+    }
   }
 
   private void clearStales() {
-    VirtualConnection[] stales = this.stales;
-    this.stales = null;
+    VirtualConnection[] stales;
+    synchronized (connectionsMap) {
+      stales = this.stales;
+      this.stales = null;
+    }
     if (stales == null) return;
     Structs.each(this::removeConnection, stales);
   }
@@ -231,39 +240,58 @@ public abstract class ProxyClient extends Client {
   }
 
   protected void addConnection(VirtualConnection con) {
-    connectionsMap.put(con.getID(), con);
-    connections.add(con);
+    synchronized (connectionsMap) {
+      connectionsMap.put(con.getID(), con);
+      connections.add(con);
+    }
   }
 
   protected void removeConnection(VirtualConnection con) {
-    connectionsMap.remove(con.getID());
-    connections.remove(con);
+    synchronized (connectionsMap) {
+      connectionsMap.remove(con.getID());
+      connections.remove(con);
+    }
   }
 
   protected void clearConnections() {
-    connectionsMap.clear();
-    connections.clear();
+    synchronized (connectionsMap) {
+      connectionsMap.clear();
+      connections.clear();
+    }
   }
 
   public VirtualConnection getConnection(int id) {
-    return connectionsMap.get(id);
+    synchronized (connectionsMap) {
+      return connectionsMap.get(id);
+    }
   }
 
   /** @return whether the connection is from this proxy. */
   public boolean hasConnection(Connection con) {
-    return con != null && connectionsMap.get(con.getID()) == con;
+    if (con == null) return false;
+    synchronized (connectionsMap) {
+      return connectionsMap.get(con.getID()) == con;
+    }
   }
 
   public Iterable<VirtualConnection> getConnections() {
-    return connections;
+    synchronized (connectionsMap) {
+      return new Seq<>(connections);
+    }
   }
 
   public int getConnectionsSize() {
-    return connections.size;
+    synchronized (connectionsMap) {
+      return connections.size;
+    }
   }
 
   public void eachConnections(Cons<VirtualConnection> consumer) {
-    connections.each(consumer);
+    Seq<VirtualConnection> copy;
+    synchronized (connectionsMap) {
+      copy = new Seq<>(connections);
+    }
+    copy.each(consumer);
   }
 
 
