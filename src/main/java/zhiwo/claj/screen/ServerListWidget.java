@@ -73,34 +73,65 @@ public class ServerListWidget extends ObjectSelectionList<ServerListWidget.Serve
 		public void extractContent(GuiGraphicsExtractor extractor, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
 			int x = getContentX();
 			int y = getContentY();
+			int right = getContentRight();
+			int bottom = getContentBottom();
 			int color = isSelected() ? 0x8033AAFF : isMouseOver ? 0x40FFFFFF : 0x25000000;
-			extractor.fill(x, y, getContentRight(), getContentBottom(), color);
-			String text = label();
-			int maxWidth = getContentRight() - x - 12;
-			if (minecraft.font.width(text) > maxWidth && maxWidth > 20) {
-				text = minecraft.font.plainSubstrByWidth(text, maxWidth - 8) + "…";
+			extractor.fill(x, y, right, bottom, color);
+
+			int textColor = isSelected() ? 0xFFFFAA00 : 0xFFFFFFFF;
+			String rightText = rightLabel();
+			int rightWidth = rightText.isEmpty() ? 0 : minecraft.font.width(rightText);
+
+			if (!rightText.isEmpty()) {
+				int rightX = right - 6 - rightWidth;
+				extractor.text(minecraft.font, rightText, rightX, y + 6, textColor);
 			}
-			extractor.text(minecraft.font, text, x + 6, y + 6, isSelected() ? 0xFFFFAA00 : 0xFFFFFFFF);
+
+			String leftText = leftLabel();
+			int maxLeftWidth = rightText.isEmpty() ? (right - x - 12) : (right - 6 - rightWidth - 6 - (x + 6));
+			if (maxLeftWidth > 0 && minecraft.font.width(leftText) > maxLeftWidth) {
+				if (maxLeftWidth > 20) {
+					leftText = minecraft.font.plainSubstrByWidth(leftText, maxLeftWidth - 8) + "…";
+				} else {
+					leftText = minecraft.font.plainSubstrByWidth(leftText, maxLeftWidth);
+				}
+			}
+			if (maxLeftWidth > 0) {
+				extractor.text(minecraft.font, leftText, x + 6, y + 6, textColor);
+			}
 		}
 
 		private boolean isSelected() {
 			return ServerListWidget.this.getSelected() == this;
 		}
 
-		private String label() {
-			String suffix;
-			if (server.ping() < 0) {
-				suffix = "";
-			} else if (server.ping() == Integer.MAX_VALUE) {
-				suffix = Component.translatable("claj.manage.offline").getString();
-			} else {
-				suffix = " " + server.ping() + "ms" + (server.compatible() ? "" : Component.translatable("claj.manage.incompatible").getString());
+		private String leftLabel() {
+			return server.name() + " [" + server.host() + ":" + server.port() + "]";
+		}
+
+		private String rightLabel() {
+			StringBuilder sb = new StringBuilder();
+			if (server.ping() == Integer.MAX_VALUE) {
+				sb.append(Component.translatable("claj.manage.offline").getString().trim());
+			} else if (server.ping() >= 0) {
+				sb.append(server.ping()).append("ms");
+				if (!server.compatible()) {
+					sb.append(" ").append(Component.translatable("claj.manage.incompatible").getString().trim());
+				}
 			}
-			String base = server.name() + " [" + server.host() + ":" + server.port() + "]" + suffix;
 			if (showDeleteHint && ClajServers.custom.containsKey(server.name())) {
-				base += "  " + Component.translatable("claj.manage.delete-server.hint").getString();
+				if (!sb.isEmpty()) {
+					sb.append(" ");
+				}
+				sb.append(Component.translatable("claj.manage.delete-server.hint").getString().trim());
 			}
-			return base;
+			return sb.toString();
+		}
+
+		private String label() {
+			String left = leftLabel();
+			String right = rightLabel();
+			return right.isEmpty() ? left : left + " " + right;
 		}
 
 		@Override
