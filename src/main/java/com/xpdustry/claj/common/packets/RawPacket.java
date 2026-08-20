@@ -47,6 +47,14 @@ public class RawPacket implements Packet {
     read(read.buffer);
   }
 
+  public RawPacket write(ByteBuffer buffer) {
+    ByteBuffer data = data();
+    int pos = data.position();
+    buffer.put(data);
+    data.position(pos);
+    return this;
+  }
+
   @Override
   public void write(ByteBufferOutput write) {
     write(data(), write);

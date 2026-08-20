@@ -38,7 +38,7 @@ public class MinecraftClajProvider implements ClajProvider {
 	/** CLaJ implementation type, must match between hosts and joiners. */
 	public static final ClajType IMPL_TYPE = ClajType.of("Minecraft");
 	/** CLaJ protocol version. Major version must match the relay server. */
-	public static final ClajVersion VERSION = ClajVersion.of(2, 4, 2);
+	public static final ClajVersion VERSION = ClajVersion.of(2, 4, 3);
 
 	private static final ExecutorService executor = Executors.newCachedThreadPool(r -> {
 		Thread t = new Thread(r, "Claj Worker");

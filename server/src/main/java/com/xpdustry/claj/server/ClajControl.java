@@ -186,21 +186,11 @@ public class ClajControl extends CommandHandler implements ApplicationListener {
     });
 
     //TODO: argument that display room info and state
-    register("rooms", "[status]", "Displays created rooms.", args -> {
+    register("rooms", "[info]", "Displays created rooms.", args -> {
       if (ClajVars.relay.rooms.isEmpty()) {
         Log.info("No created rooms.");
 
-      }else if (args.length == 0) {
-        Log.info("Rooms: [total: @]", ClajVars.relay.rooms.size);
-        ClajVars.relay.rooms.eachValue(r -> {
-          Log.info("&lk|&fr Room @: [@ client" + (r.isEmpty() ? "" : "s") + ", type: @, @]", r.sid,
-                   r.clients() + 1, r.type, r.isPublic ? "&lgpublic" : "&lrprivate");
-          Log.info("&lk| |&fr [H] Connection @&fr - @", r.host.sid, r.host.saddress);
-          r.clients.each(c -> Log.info("&lk| |&fr [C] Connection @&fr - @", c.sid, c.saddress));
-          Log.info("&lk|&fr");
-        });
-
-      } else if (args[0].equals("status")) {
+      } else if (args.length == 0) {
         Log.info("Rooms: [total: @]", ClajVars.relay.rooms.size);
         ClajVars.relay.rooms.eachValue(r -> {
           NetworkSpeed n = r.transferredPackets;
@@ -211,8 +201,18 @@ public class ClajControl extends CommandHandler implements ApplicationListener {
                    n.uploadSpeed(), n.downloadSpeed(), n.totalUpload(), n.totalDownload());
         });
 
+      } else if (args[0].equals("info")) {
+        Log.info("Rooms: [total: @]", ClajVars.relay.rooms.size);
+        ClajVars.relay.rooms.eachValue(r -> {
+          Log.info("&lk|&fr Room @: [@ client" + (r.isEmpty() ? "" : "s") + ", type: @, @]", r.sid,
+                   r.clients() + 1, r.type, r.isPublic ? "&lgpublic" : "&lrprivate");
+          Log.info("&lk| |&fr [H] Connection @&fr - @", r.host.sid, r.host.saddress);
+          r.clients.each(c -> Log.info("&lk| |&fr [C] Connection @&fr - @", c.sid, c.saddress));
+          Log.info("&lk|&fr");
+        });
+
       } else {
-        Log.err("Invalid argument! Must be 'status' or nothing.");
+        Log.err("Invalid argument! Must be 'info' or nothing.");
       }
     });
 

@@ -111,9 +111,9 @@ project(':server') {
 	group = 'com.xpdustry.claj'
 	// IMPORTANT: this is the CLaJ protocol version (parsed as protocol.major.minor by
 	// ClajVersion, so the relay expects client version == majorVersion, i.e. 4).
-	// It must NOT follow the mod's own version (1.3.0 -> majorVersion 3 would reject
+	// It must NOT follow the mod's own version (1.3.1 -> majorVersion 3 would reject
 	// every client). Keep in sync with xpdustry/claj's CLaJ protocol releases.
-	version = '2.4.2'
+	version = '2.4.3'
 
 	repositories {
 		maven {
